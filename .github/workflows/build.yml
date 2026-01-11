@@ -1,4 +1,4 @@
-name: Build Quarkus Faces
+name: Build Quarkus Faces for Nanos
 
 on:
   workflow_dispatch:
@@ -14,12 +14,12 @@ jobs:
           git clone https://github.com/melloware/quarkus-faces.git
           cd quarkus-faces
 
-      # 2️⃣ Setup Java (Quarkus richiede Java 17)
+      # 2️⃣ Setup Java (Quarkus 3+ compatibile con Java 17)
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '25'
+          java-version: '17'
 
       # 3️⃣ Cache Maven dependencies
       - name: Cache Maven packages
@@ -30,13 +30,21 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      # 4️⃣ Build Maven con uber-jar
+      # 4️⃣ Aggiorna application.properties per impostare i compressors
+      - name: Configure HTTP compressors
+        run: |
+          cd quarkus-faces/src/main/resources
+          # Disabilita Brotli (per evitare crash su Nanos)
+          # Abilita solo deflate e gzip
+          echo "quarkus.http.compressors=deflate,gzip" >> application.properties
+
+      # 5️⃣ Build Maven uber-jar
       - name: Build uber-jar
         run: |
           cd quarkus-faces
           mvn clean package -Dquarkus.package.jar.type=uber-jar -DskipTests
 
-      # 5️⃣ Upload the uber-jar artifact
+      # 6️⃣ Upload the uber-jar artifact
       - name: Upload uber-jar
         uses: actions/upload-artifact@v4
         with:
