@@ -38,7 +38,7 @@ jobs:
 
       # 5. Upload the JAR artifact
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: quarkus-faces-artifact
           path: quarkus-faces/target/*.jar
