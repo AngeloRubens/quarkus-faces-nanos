@@ -34,9 +34,11 @@ jobs:
       - name: Configure HTTP compressors
         run: |
           cd quarkus-faces/src/main/resources
-          # Disabilita Brotli (per evitare crash su Nanos)
-          # Abilita solo deflate e gzip
+          # Rimuove le righe precedenti che iniziano con quarkus.http.*
+          sed -i '/^quarkus\.http\./d' application.properties || true
+          # Imposta solo deflate e gzip
           echo "quarkus.http.compressors=deflate,gzip" >> application.properties
+          cat application.properties
 
       # 5️⃣ Build Maven uber-jar
       - name: Build uber-jar
