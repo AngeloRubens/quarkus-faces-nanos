@@ -1,0 +1,44 @@
+name: Build Quarkus Faces
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Clona il repo esterno
+      - name: Clone quarkus-faces repo
+        run: |
+          git clone https://github.com/melloware/quarkus-faces.git
+          cd quarkus-faces
+
+      # 2. Setup Java
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      # 3. Cache Maven dependencies
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('quarkus-faces/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      # 4. Build Maven
+      - name: Build with Maven
+        run: |
+          cd quarkus-faces
+          mvn clean package -DskipTests
+
+      # 5. Upload the JAR artifact
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: quarkus-faces-artifact
+          path: quarkus-faces/target/*.jar
