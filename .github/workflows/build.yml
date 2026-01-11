@@ -37,6 +37,7 @@ jobs:
           # Rimuove le righe precedenti che iniziano con quarkus.http.*
           sed -i '/^quarkus\.http\./d' application.properties || true
           # Imposta solo deflate e gzip
+          echo "" >> application.properties
           echo "quarkus.http.compressors=deflate,gzip" >> application.properties
           cat application.properties
 
