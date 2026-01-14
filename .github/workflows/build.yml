@@ -45,7 +45,7 @@ jobs:
       - name: Build uber-jar
         run: |
           cd quarkus-faces
-          mvn clean package -Dquarkus.package.jar.compress=true -Dquarkus.package.remove-unused-classes=true -Dquarkus.package.jar.type=fast-jar -DskipTests
+          mvn clean package -Dquarkus.package.jar.compress=true -Dquarkus.package.jar.type=uber-jar -DskipTests
 
       # 6️⃣ Upload the uber-jar artifact
       - name: Upload uber-jar
