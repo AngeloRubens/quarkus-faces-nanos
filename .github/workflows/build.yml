@@ -52,4 +52,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
            name: quarkus-faces-runner
-           path: quarkus-faces/target/quarkus-app
+           path: quarkus-faces/target/*.jar
