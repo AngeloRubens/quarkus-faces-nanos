@@ -12,14 +12,14 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
         with:
-          ref: main   # assicuriamoci di avere il branch main
+          ref: main
 
       # 2️⃣ Clona il repo esterno quarkus-faces
       - name: Clone quarkus-faces repo
         run: |
           git clone https://github.com/melloware/quarkus-faces.git
 
-      # 3️⃣ Setup Java (Quarkus 3+ compatibile con Java 17)
+      # 3️⃣ Setup Java
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -35,7 +35,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      # 5️⃣ Aggiorna application.properties per impostare i compressors
+      # 5️⃣ Aggiorna application.properties
       - name: Configure HTTP compressors
         run: |
           cd quarkus-faces/src/main/resources
@@ -44,20 +44,31 @@ jobs:
           echo "quarkus.http.compressors=deflate,gzip" >> application.properties
           cat application.properties
 
-      # 6️⃣ Copia info.xhtml nella cartella resources
+      # 6️⃣ Copia info.xhtml nelle resources
       - name: Add info.xhtml to resources
         run: |
-          cp "$GITHUB_WORKSPACE/info.xhtml" "quarkus-faces/src/main/resources/META-INF/resources/"
+          cp "$GITHUB_WORKSPACE/info.xhtml" \
+             "quarkus-faces/src/main/resources/"
 
-      # 7️⃣ Build Maven uber-jar
+      # 7️⃣ Copia SystemInfo.java nei sorgenti Java
+      - name: Add SystemInfo.java to sources
+        run: |
+          mkdir -p quarkus-faces/src/main/java/org/primefaces/showcase
+          cp "$GITHUB_WORKSPACE/SystemInfo.java" \
+             "quarkus-faces/src/main/java/org/primefaces/showcase/"
+
+      # 8️⃣ Build Maven uber-jar
       - name: Build uber-jar
         run: |
           cd quarkus-faces
-          mvn clean package -Dquarkus.package.jar.compress=true -Dquarkus.package.jar.type=uber-jar -DskipTests
+          mvn clean package \
+            -Dquarkus.package.jar.compress=true \
+            -Dquarkus.package.jar.type=uber-jar \
+            -DskipTests
 
-      # 8️⃣ Upload the uber-jar artifact
+      # 9️⃣ Upload artifact
       - name: Upload uber-jar
         uses: actions/upload-artifact@v4
         with:
-           name: quarkus-faces-runner
-           path: quarkus-faces/target/*.jar
+          name: quarkus-faces-runner
+          path: quarkus-faces/target/*.jar
