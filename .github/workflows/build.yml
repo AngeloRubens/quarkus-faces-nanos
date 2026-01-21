@@ -8,20 +8,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Clona il repo esterno
+      # 1️⃣ Checkout del repository del workflow (branch main)
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          ref: main   # assicuriamoci di avere il branch main
+
+      # 2️⃣ Clona il repo esterno quarkus-faces
       - name: Clone quarkus-faces repo
         run: |
           git clone https://github.com/melloware/quarkus-faces.git
-          cd quarkus-faces
 
-      # 2️⃣ Setup Java (Quarkus 3+ compatibile con Java 17)
+      # 3️⃣ Setup Java (Quarkus 3+ compatibile con Java 17)
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '25'
 
-      # 3️⃣ Cache Maven dependencies
+      # 4️⃣ Cache Maven dependencies
       - name: Cache Maven packages
         uses: actions/cache@v3
         with:
@@ -30,30 +35,27 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      # 4️⃣ Aggiorna application.properties per impostare i compressors
+      # 5️⃣ Aggiorna application.properties per impostare i compressors
       - name: Configure HTTP compressors
         run: |
           cd quarkus-faces/src/main/resources
-          # Rimuove le righe precedenti che iniziano con quarkus.http.*
           sed -i '/^quarkus\.http\./d' application.properties || true
-          # Imposta solo deflate e gzip
           echo "" >> application.properties
           echo "quarkus.http.compressors=deflate,gzip" >> application.properties
           cat application.properties
 
-      # 5️⃣ Copia info.xhtml nella cartella resources
+      # 6️⃣ Copia info.xhtml nella cartella resources
       - name: Add info.xhtml to resources
         run: |
-          cd quarkus-faces/src/main/resources
-          cp $GITHUB_WORKSPACE/info.xhtml ./
+          cp "$GITHUB_WORKSPACE/info.xhtml" "quarkus-faces/src/main/resources/"
 
-      # 6️⃣ Build Maven uber-jar
+      # 7️⃣ Build Maven uber-jar
       - name: Build uber-jar
         run: |
           cd quarkus-faces
           mvn clean package -Dquarkus.package.jar.compress=true -Dquarkus.package.jar.type=uber-jar -DskipTests
 
-      # 7️⃣ Upload the uber-jar artifact
+      # 8️⃣ Upload the uber-jar artifact
       - name: Upload uber-jar
         uses: actions/upload-artifact@v4
         with:
