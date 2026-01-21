@@ -47,7 +47,7 @@ jobs:
       # 6️⃣ Copia info.xhtml nella cartella resources
       - name: Add info.xhtml to resources
         run: |
-          cp "$GITHUB_WORKSPACE/info.xhtml" "quarkus-faces/src/main/resources/"
+          cp "$GITHUB_WORKSPACE/info.xhtml" "quarkus-faces/src/main/resources/META-INF/resources/"
 
       # 7️⃣ Build Maven uber-jar
       - name: Build uber-jar
