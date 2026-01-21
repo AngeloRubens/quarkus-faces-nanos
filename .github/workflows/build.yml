@@ -41,13 +41,19 @@ jobs:
           echo "quarkus.http.compressors=deflate,gzip" >> application.properties
           cat application.properties
 
-      # 5️⃣ Build Maven uber-jar
+      # 5️⃣ Copia info.xhtml nella cartella resources
+      - name: Add info.xhtml to resources
+        run: |
+          cd quarkus-faces/src/main/resources
+          cp $GITHUB_WORKSPACE/info.xhtml ./
+
+      # 6️⃣ Build Maven uber-jar
       - name: Build uber-jar
         run: |
           cd quarkus-faces
           mvn clean package -Dquarkus.package.jar.compress=true -Dquarkus.package.jar.type=uber-jar -DskipTests
 
-      # 6️⃣ Upload the uber-jar artifact
+      # 7️⃣ Upload the uber-jar artifact
       - name: Upload uber-jar
         uses: actions/upload-artifact@v4
         with:
